@@ -1,3 +1,3 @@
 package com.kotlincoffeemaker.application.advice
 
-class InvalidDisplayMode(message: String): RuntimeException(message)
+class InvalidDisplayMode(override val message: String?): RuntimeException(message)

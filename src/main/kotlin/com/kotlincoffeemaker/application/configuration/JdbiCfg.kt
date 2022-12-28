@@ -1,5 +1,5 @@
 /*
-package com.kotlincoffeemaker.main.configuration
+package com.kotlincoffeemaker.application.configuration
 
 import com.gitlab.mvysny.jdbiorm.JdbiOrm
 import org.jdbi.v3.core.statement.Slf4JSqlLogger
@@ -19,4 +19,5 @@ class JdbiCfg(val ds: DataSource) {
     fun stop() {
         JdbiOrm.destroy()
     }
-}*/
+}
+*/

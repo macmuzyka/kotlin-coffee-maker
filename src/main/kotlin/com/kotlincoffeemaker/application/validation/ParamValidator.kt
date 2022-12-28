@@ -1,5 +1,6 @@
 package com.kotlincoffeemaker.application.validation
 
+import com.kotlincoffeemaker.application.advice.InvalidDisplayMode
 import com.kotlincoffeemaker.application.model.enums.CoffeeDosage
 import com.kotlincoffeemaker.application.model.enums.DisplayMode
 import lombok.extern.slf4j.Slf4j
@@ -10,7 +11,7 @@ import java.util.*
 @Slf4j
 class ParamValidator {
     companion object {
-        private val logger = LoggerFactory.getLogger(ParamValidator::class.java)
+        private val log = LoggerFactory.getLogger(ParamValidator::class.java)
 
         fun validateDosage(dosage: List<CoffeeDosage>?): List<String> {
             return if (dosage == null) {
@@ -29,20 +30,29 @@ class ParamValidator {
             }
         }
 
-        fun validateClientName(clientName: String?): String {
-            return clientName ?: ""
+        fun validateName(clientName: String?, creating: Boolean): String {
+            return if (creating) {
+                clientName ?: "Have a nice nice coffee :)"
+            } else {
+                clientName ?: ""
+            }
+
         }
 
         fun validateDisplayMode(mode: DisplayMode): String {
             return when (mode) {
                 DisplayMode.TODAY -> {
-                    logger.info("TODAY case")
+                    log.info("TODAY case")
                     LocalDateTime.now().toString()
                 }
 
                 DisplayMode.ALL_TIME -> {
-                    logger.info("ALL_TIME case")
+                    log.info("ALL_TIME case")
                     LocalDateTime.now().minusYears(25).toString()
+                }
+
+                else -> { // conditions exhausted, but going to keep it
+                    throw InvalidDisplayMode("Unrecognized display mode selected!")
                 }
             }
         }

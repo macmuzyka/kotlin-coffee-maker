@@ -1,5 +1,6 @@
 package com.kotlincoffeemaker.application.api.coffee
 
+import com.kotlincoffeemaker.application.advice.AlreadyCompletedException
 import com.kotlincoffeemaker.application.model.Coffee
 import com.kotlincoffeemaker.application.model.enums.CoffeeDosage
 import com.kotlincoffeemaker.application.model.enums.DisplayMode
@@ -17,7 +18,7 @@ import kotlin.IllegalArgumentException
 @Service
 class CoffeeService(val coffeeRepository: CoffeeRepository) {
 
-    private val logger = LoggerFactory.getLogger(CoffeeService::class.java)
+    private val log = LoggerFactory.getLogger(CoffeeService::class.java)
 
     fun getAllCoffee(
         page: Int,
@@ -28,10 +29,10 @@ class CoffeeService(val coffeeRepository: CoffeeRepository) {
         mode: DisplayMode
     ): Page<Coffee> {
         val validDosage: List<String> = ParamValidator.validateDosage(dosage)
-        val properClientName = ParamValidator.validateClientName(clientName)
+        val properClientName = ParamValidator.validateName(clientName, creating = false)
         val displayMode: String = ParamValidator.validateDisplayMode(mode)
         val pageable: Pageable = PageRequest.of(page, rows)
-        logger.info(
+        log.info(
             "Validated params -> " +
                     "page :: $page, " +
                     "rows :: $rows, " +
@@ -53,13 +54,57 @@ class CoffeeService(val coffeeRepository: CoffeeRepository) {
             .orElseThrow { IllegalArgumentException("Coffee with id $coffeeId not found!") }
     }
 
-    fun createCoffee(dosage: CoffeeDosage, ingredients: List<ExtraIngredient>, clientName: String): Coffee {
-        return coffeeRepository.save(Coffee(dosage, ingredients, clientName))
+    fun orderCoffee(dosage: CoffeeDosage?, ingredients: List<ExtraIngredient>?, clientName: String?): Coffee {
+        val properClientName = ParamValidator.validateName(clientName, creating = true)
+        return coffeeRepository.save(Coffee(dosage, ingredients, properClientName))
     }
 
     fun brewCoffee(coffeeId: Long): Coffee {
-        val coffeeToBrew = getCoffeeById(coffeeId)
-        coffeeToBrew.brew()
-        return coffeeRepository.save(coffeeToBrew)
+        return try {
+            val coffeeToBrew = getCoffeeById(coffeeId)
+            coffeeToBrew.brew()
+            coffeeRepository.save(coffeeToBrew)
+        } catch (ace: AlreadyCompletedException) {
+            throw ace
+        }
+
+    }
+
+    fun updateCoffee(
+        toUpdate: Coffee,
+        dosage: CoffeeDosage?,
+        ingredients: List<ExtraIngredient>?,
+        clientName: String?
+    ) {
+        log.info("Coffee to update :: $toUpdate")
+        if (dosage != null) {
+            if (dosage != toUpdate.dosage) {
+                log.info("Changing dosage from :: ${toUpdate.dosage} to $dosage")
+                toUpdate.dosage = dosage
+            } else {
+                log.info("Dosage stays the same!")
+            }
+        }
+
+        if (ingredients != null) {
+            val ingredientsToUpdate = toUpdate.ingredients
+            log.info("Changing ingredients from :: {}", ingredientsToUpdate)
+            log.info("to ingredients :: {}", ingredients)
+            toUpdate.ingredients = ingredients
+        }
+
+        if (clientName != "Have a nice nice coffee :)") {
+            if (clientName == toUpdate.clientName) {
+                log.info("Changing label from ${toUpdate.clientName} to $clientName")
+                toUpdate.clientName = clientName
+            }
+        } else {
+            log.info("Label stays the same")
+        }
+        log.info("Coffee updated :: $toUpdate")
+    }
+
+    fun updateCoffee(toUpdate: Coffee): Coffee {
+        TODO("Not yet implemented")
     }
 }

@@ -1,5 +1,7 @@
 package com.kotlincoffeemaker.application.api.coffee
 
+import com.kotlincoffeemaker.application.advice.AlreadyCompletedException
+import com.kotlincoffeemaker.application.advice.InvalidDisplayMode
 import com.kotlincoffeemaker.application.model.enums.CoffeeDosage
 import com.kotlincoffeemaker.application.model.enums.DisplayMode
 import com.kotlincoffeemaker.application.model.enums.ExtraIngredient
@@ -23,25 +25,21 @@ class CoffeeController(val coffeeService: CoffeeService) {
         return try {
             ResponseEntity.status(HttpStatus.OK)
                 .body(coffeeService.getAllCoffee(page, rows, dosage, completed, clientName, mode))
+        } catch (idm: InvalidDisplayMode) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(idm.message)
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("INTERNAL_SERVER_ERROR :: ${e.message}")
         }
-
     }
 
-    /*@PatchMapping("/brew-coffee")
-    fun brewCoffee(@RequestParam coffeeId: Long?): ResponseEntity<*> {
+    @PostMapping("/order")
+    fun orderCoffee(
+        @RequestParam dosage: CoffeeDosage,
+        @RequestParam ingredients: List<ExtraIngredient>?,
+        @RequestParam clientName: String?
+    ): ResponseEntity<*> {
         return try {
-            ResponseEntity.status(HttpStatus.OK).body(preparationService.brewCoffee(coffeeId))
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.message)
-        }
-    }*/
-
-    @PostMapping("/new-coffee")
-    fun newCoffee(): ResponseEntity<*> {
-        return try {
-            ResponseEntity.status(HttpStatus.OK).body(coffeeService.createCoffee(CoffeeDosage.SINGLE, listOf(ExtraIngredient.BROWN_SUGAR, ExtraIngredient.CANE_SUGAR), "Alfa & Omega"))
+            ResponseEntity.status(HttpStatus.OK).body(coffeeService.orderCoffee(dosage, ingredients, clientName))
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("INTERNAL_SERVER_ERROR :: ${e.message}")
         }
@@ -53,6 +51,8 @@ class CoffeeController(val coffeeService: CoffeeService) {
             ResponseEntity.status(HttpStatus.OK).body(coffeeService.brewCoffee(coffeeId))
         } catch (iea: IllegalArgumentException) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT_FOUND :: ${iea.message}")
+        } catch (ace: AlreadyCompletedException) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("BAD_REQUEST :: ${ace.message}")
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("INTERNAL_SERVER_ERROR :: ${e.message}")
         }
