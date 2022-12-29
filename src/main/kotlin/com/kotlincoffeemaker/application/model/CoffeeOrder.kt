@@ -1,6 +1,6 @@
 package com.kotlincoffeemaker.application.model
 
-import Audit
+import com.kotlincoffeemaker.application.model.audit.Audit
 import com.kotlincoffeemaker.application.advice.AlreadyCompletedException
 import com.kotlincoffeemaker.application.advice.ExcludingConditionsException
 import com.kotlincoffeemaker.application.model.enums.CoffeeDosage
@@ -16,7 +16,7 @@ data class CoffeeOrder(
     var coffeeList: MutableList<Coffee>,
     var ready: Boolean = false,
     var delivered: Boolean = false,
-    val warmup: Boolean = false
+    private val warmup: Boolean = false
 ) : Audit() {
     constructor () : this(
         mutableListOf(
@@ -29,7 +29,7 @@ data class CoffeeOrder(
     )
 
     fun completeOrder() {
-        if (ready) {
+        if (this.ready) {
             throw AlreadyCompletedException("Cannot complete Order that has been already completed!")
         }
         this.ready = true

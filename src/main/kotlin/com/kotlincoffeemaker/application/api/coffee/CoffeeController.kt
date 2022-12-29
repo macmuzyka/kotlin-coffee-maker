@@ -2,6 +2,7 @@ package com.kotlincoffeemaker.application.api.coffee
 
 import com.kotlincoffeemaker.application.advice.AlreadyCompletedException
 import com.kotlincoffeemaker.application.advice.InvalidDisplayMode
+import com.kotlincoffeemaker.application.api.preparation.PreparationService
 import com.kotlincoffeemaker.application.model.enums.CoffeeDosage
 import com.kotlincoffeemaker.application.model.enums.DisplayMode
 import com.kotlincoffeemaker.application.model.enums.ExtraIngredient
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/coffee")
-class CoffeeController(val coffeeService: CoffeeService) {
+class CoffeeController(val coffeeService: CoffeeService, val preparationService: PreparationService) {
 
     @GetMapping("/all")
     fun getAllCoffee(
@@ -48,7 +49,7 @@ class CoffeeController(val coffeeService: CoffeeService) {
     @PatchMapping("/brew-coffee")
     fun brewCoffee(@RequestParam coffeeId: Long): ResponseEntity<*> {
         return try {
-            ResponseEntity.status(HttpStatus.OK).body(coffeeService.brewCoffee(coffeeId))
+            ResponseEntity.status(HttpStatus.OK).body(preparationService.brewCoffee(coffeeId))
         } catch (iea: IllegalArgumentException) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT_FOUND :: ${iea.message}")
         } catch (ace: AlreadyCompletedException) {

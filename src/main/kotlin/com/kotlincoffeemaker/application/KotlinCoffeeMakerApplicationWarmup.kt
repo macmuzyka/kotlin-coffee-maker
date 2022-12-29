@@ -2,6 +2,7 @@ package com.kotlincoffeemaker.application
 
 import com.kotlincoffeemaker.application.api.coffee.CoffeeRepository
 import com.kotlincoffeemaker.application.api.order.OrderRepository
+import com.kotlincoffeemaker.application.api.product.ProductLevelService
 import com.kotlincoffeemaker.application.model.Coffee
 import com.kotlincoffeemaker.application.model.CoffeeOrder
 import com.kotlincoffeemaker.application.model.enums.CoffeeDosage
@@ -17,7 +18,7 @@ import javax.transaction.Transactional
 class KotlinCoffeeMakerApplicationWarmup(
     val orderRepository: OrderRepository,
     val coffeeRepository: CoffeeRepository,
-//    val productLevelService: ProductLevelService
+    val productLevelService: ProductLevelService
 ) : ApplicationListener<ApplicationStartedEvent> {
 
     private val log = LoggerFactory.getLogger(KotlinCoffeeMakerApplicationWarmup::class.java)
@@ -26,9 +27,8 @@ class KotlinCoffeeMakerApplicationWarmup(
     @Transactional
     override fun onApplicationEvent(event: ApplicationStartedEvent) {
         log.info("ApplicationContext :: ${event.applicationContext}")
-//        listOf(Coffee(CoffeeDosage.DOUBLE, listOf(ExtraIngredient.MILK), "Warmup Client Name"))
 
-        //TODO: product level container implementation(checking on application warmup if it's initialised) & tracking usage of materials
+        productLevelService.checkLevel()
 
         if (orderRepository.findAll().size > 0) {
             log.info("Application warmup :: No need of populating order / coffee list!")
@@ -54,7 +54,7 @@ class KotlinCoffeeMakerApplicationWarmup(
                         delivered = true
                     )
                 )
-            log.info("Application warmup first Order :: {}", firstOrder)
+            log.info("Application warmup first Order :: $firstOrder")
             log.info("Warmup order completed!")
         }
         log.info("Warmup done!")

@@ -1,6 +1,5 @@
 package com.kotlincoffeemaker.application.api.coffee
 
-import com.kotlincoffeemaker.application.advice.AlreadyCompletedException
 import com.kotlincoffeemaker.application.model.Coffee
 import com.kotlincoffeemaker.application.model.enums.CoffeeDosage
 import com.kotlincoffeemaker.application.model.enums.DisplayMode
@@ -59,17 +58,6 @@ class CoffeeService(val coffeeRepository: CoffeeRepository) {
         return coffeeRepository.save(Coffee(dosage, ingredients, properClientName))
     }
 
-    fun brewCoffee(coffeeId: Long): Coffee {
-        return try {
-            val coffeeToBrew = getCoffeeById(coffeeId)
-            coffeeToBrew.brew()
-            coffeeRepository.save(coffeeToBrew)
-        } catch (ace: AlreadyCompletedException) {
-            throw ace
-        }
-
-    }
-
     fun updateCoffee(
         toUpdate: Coffee,
         dosage: CoffeeDosage?,
@@ -105,6 +93,6 @@ class CoffeeService(val coffeeRepository: CoffeeRepository) {
     }
 
     fun updateCoffee(toUpdate: Coffee): Coffee {
-        TODO("Not yet implemented")
+        return coffeeRepository.save(toUpdate)
     }
 }

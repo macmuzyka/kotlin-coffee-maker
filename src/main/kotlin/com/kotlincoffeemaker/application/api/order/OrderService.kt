@@ -42,8 +42,16 @@ class OrderService(val orderRepository: OrderRepository, val coffeeService: Coff
         return when {
             ready == false && delivered == true -> throw ExcludingConditionsException("Order cannot be delivered and NOT ready at the same time!")
             ready == null && delivered == null -> orderRepository.findAll(validatedMode, pageable)
-            ready == true && (delivered == null || delivered == false) -> orderRepository.findReadyButUndelivered(validatedMode, pageable)
-            (ready == true || ready == null) && delivered == true -> orderRepository.findReadyAndDelivered(validatedMode, pageable)
+            ready == true && (delivered == null || delivered == false) -> orderRepository.findReadyButUndelivered(
+                validatedMode,
+                pageable
+            )
+
+            (ready == true || ready == null) && delivered == true -> orderRepository.findReadyAndDelivered(
+                validatedMode,
+                pageable
+            )
+
             else -> orderRepository.findAll(pageable)
         }
     }
@@ -110,19 +118,15 @@ class OrderService(val orderRepository: OrderRepository, val coffeeService: Coff
         ingredients: List<ExtraIngredient>?,
         clientName: String?
     ): CoffeeOrder {
-        val order = orderRepository.findOrderContainingCoffeeId(coffeeId)
+        val order = orderRepository.findOrderContainingCoffeeId(coffeeId).get()
 
-        if (order.isPresent) {
-            var orderToUpdate = order.get()
-            if (orderToUpdate.delivered) {
+        order.let {
+            if (it.delivered) {
                 throw AlreadyCompletedException("updateOrder :: Cannot update coffee in already delivered order!")
-            } else {
-                var coffeeList = orderToUpdate.coffeeList
-                updateCoffeeInOrder(coffeeList, coffeeId, dosage, ingredients, clientName)
-                return orderRepository.save(orderToUpdate)
             }
-        } else {
-            throw CoffeeOrderNotFoundException("updateOrder :: Coffee order with coffee id $coffeeId not found!")
+            val coffeeList = it.coffeeList
+            updateCoffeeInOrder(coffeeList, coffeeId, dosage, ingredients, clientName)
+            return it
         }
     }
 
@@ -144,4 +148,29 @@ class OrderService(val orderRepository: OrderRepository, val coffeeService: Coff
             }
         }
     }
+
+    fun completeOrder(order: CoffeeOrder) {
+        order.completeOrder()
+        log.info("Order ${order.id} completed!")
+    }
+
+    /*fun verifyOrders() {
+        val coffeeOrders = orderRepository.findAll()
+            .stream()
+            .filter { order -> !order.ready }
+            .collect(Collectors.toList())
+
+        for (order in coffeeOrders) {
+            val completed = order.coffeeList
+                .stream()
+                .map { it.coffeeComplete }
+                .noneMatch { false }
+
+            if (completed) {
+                order.completeOrder()
+                orderRepository.save(order)
+                log.info("Scheduled :: verifyOrders -> Order with id :: ${order.id} is READY to be delivered!")
+            }
+        }
+    }*/
 }

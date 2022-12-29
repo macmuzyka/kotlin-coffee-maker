@@ -1,6 +1,6 @@
 package com.kotlincoffeemaker.application.model
 
-import Audit
+import com.kotlincoffeemaker.application.model.audit.Audit
 import com.kotlincoffeemaker.application.advice.AlreadyCompletedException
 import com.kotlincoffeemaker.application.model.enums.CoffeeDosage
 import com.kotlincoffeemaker.application.model.enums.ExtraIngredient
@@ -16,17 +16,18 @@ data class Coffee(
     @ElementCollection(fetch = FetchType.EAGER, targetClass = ExtraIngredient::class)
     var ingredients: List<ExtraIngredient>?,
     var clientName: String?,
-    val warmup: Boolean = false,
+    private val warmup: Boolean = false,
     var coffeeComplete: Boolean = false
 ) : Audit() {
 
     constructor() : this(CoffeeDosage.SINGLE, listOf(ExtraIngredient.SUGAR), "Default constructor client name")
 
-    fun brew() {
+    fun brew(): Boolean {
         return if (coffeeComplete) {
             throw AlreadyCompletedException("Coffee with id $id has been already brewed!")
         } else {
-            coffeeComplete = true
+            this.coffeeComplete = true
+            true
         }
     }
 }
