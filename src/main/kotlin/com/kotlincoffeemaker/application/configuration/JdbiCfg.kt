@@ -1,4 +1,3 @@
-/*
 package com.kotlincoffeemaker.application.configuration
 
 import com.gitlab.mvysny.jdbiorm.JdbiOrm
@@ -20,4 +19,3 @@ class JdbiCfg(val ds: DataSource) {
         JdbiOrm.destroy()
     }
 }
-*/

@@ -3,17 +3,15 @@ package com.kotlincoffeemaker.application.validation
 import com.kotlincoffeemaker.application.advice.InvalidDisplayMode
 import com.kotlincoffeemaker.application.model.enums.CoffeeDosage
 import com.kotlincoffeemaker.application.model.enums.DisplayMode
-import lombok.extern.slf4j.Slf4j
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
 
-@Slf4j
 class ParamValidator {
     companion object {
         private val log = LoggerFactory.getLogger(ParamValidator::class.java)
 
-        fun validateDosage(dosage: List<CoffeeDosage>?): List<String> {
+        fun dosage(dosage: List<CoffeeDosage>?): List<String> {
             return if (dosage == null) {
                 val values: Array<CoffeeDosage> = CoffeeDosage.values()
                 val newDosage: MutableList<String> = ArrayList()
@@ -30,7 +28,7 @@ class ParamValidator {
             }
         }
 
-        fun validateName(clientName: String?, creating: Boolean): String {
+        fun name(clientName: String?, creating: Boolean): String {
             return if (creating) {
                 clientName ?: "Have a nice nice coffee :)"
             } else {
@@ -39,7 +37,7 @@ class ParamValidator {
 
         }
 
-        fun validateDisplayMode(mode: DisplayMode): String {
+        fun displayMode(mode: DisplayMode): String {
             return when (mode) {
                 DisplayMode.TODAY -> {
                     log.info("TODAY case")

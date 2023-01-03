@@ -5,8 +5,8 @@ import com.kotlincoffeemaker.application.advice.AlreadyCompletedException
 import com.kotlincoffeemaker.application.api.coffee.CoffeeService
 import com.kotlincoffeemaker.application.api.order.OrderRepository
 import com.kotlincoffeemaker.application.api.order.OrderService
-import com.kotlincoffeemaker.application.api.product.ProductLevelService
-import com.kotlincoffeemaker.application.api.property.PropertyContainer
+//import com.kotlincoffeemaker.application.api.product.ProductLevelService
+import com.kotlincoffeemaker.application.api.property.Product
 import com.kotlincoffeemaker.application.model.Coffee
 import com.kotlincoffeemaker.application.model.ProductLevelContainer
 import org.slf4j.LoggerFactory
@@ -18,7 +18,7 @@ class PreparationService(
     val orderRepository: OrderRepository,
     val coffeeService: CoffeeService,
     val orderService: OrderService,
-    val productLevelService: ProductLevelService
+//    val productLevelService: ProductLevelService
 ) {
 
     private val log = LoggerFactory.getLogger(PreparationService::class.java)
@@ -26,15 +26,15 @@ class PreparationService(
     fun brewCoffee(coffeeId: Long): Coffee {
         return try {
             var coffeeToBrew = coffeeService.getCoffeeById(coffeeId)
-            val currentState = productLevelService.currentState()
-            val enough = verifyProducts(currentState)
+//            val currentState = productLevelService.currentState()
+//            val enough = verifyProducts(currentState)
 
-            if (enough) {
+//            if (enough) {
                 try {
                     val coffeeBrewed = coffeeToBrew.brew()
                     if (coffeeBrewed) {
                         log.info("Adjusting product levels after brewing coffee..")
-                        productLevelService.productUsage(coffeeToBrew)
+//                        productLevelService.productUsage(coffeeToBrew)
                     }
                 } catch (e: Exception) {
                     log.error("Something went wrong while brewing coffee with id $coffeeId")
@@ -43,7 +43,7 @@ class PreparationService(
                 val brewed = coffeeService.updateCoffee(coffeeToBrew)
                 log.info("Brewed Coffee :: $brewed")
                 verifyCoffeeOrder(coffeeId)
-            }
+//            }
 
             coffeeToBrew
         } catch (ace: AlreadyCompletedException) {
@@ -71,7 +71,7 @@ class PreparationService(
         val mapper = ObjectMapper()
         val products = mapper.convertValue(currentState, Map::class.java)
         var enough = true
-        val minimumProductLevel = PropertyContainer.minimumProductLevel
+        val minimumProductLevel = Product.minimumLevel
 
         for (product in products) {
             try {

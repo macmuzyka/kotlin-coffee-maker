@@ -29,6 +29,7 @@
     "@vaadin/email-field": "23.3.1",
     "@vaadin/field-base": "23.3.1",
     "@vaadin/field-highlighter": "23.3.1",
+    "@vaadin/form": "./target/flow-frontend/form",
     "@vaadin/form-layout": "23.3.1",
     "@vaadin/grid": "23.3.1",
     "@vaadin/horizontal-layout": "23.3.1",
@@ -248,7 +249,7 @@
       "workbox-core": "6.5.0",
       "workbox-precaching": "6.5.0"
     },
-    "hash": "50fec49d807b58ac2b3b720fb0fe68c2ac2296f8d1dabd0274d3a578dc382679"
+    "hash": "98ec344407e27965cb7cc4c58c1da1667cf178daf5ba9c10c8ff5977f818aec8"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",

@@ -3,7 +3,7 @@ package com.kotlincoffeemaker.application.api.product
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.kotlincoffeemaker.application.advice.UnableToGetProductContainerException
 import com.kotlincoffeemaker.application.advice.UnknownProductVolumeException
-import com.kotlincoffeemaker.application.api.property.PropertyContainer
+import com.kotlincoffeemaker.application.api.property.Product
 import com.kotlincoffeemaker.application.model.Coffee
 import com.kotlincoffeemaker.application.model.ProductLevelContainer
 import com.kotlincoffeemaker.application.model.enums.CoffeeDosage
@@ -42,7 +42,7 @@ class ProductLevelService(val productContainer: ProductLevelContainerRepository)
 
         val mapper = ObjectMapper()
         val products = mapper.convertValue(container, MutableMap::class.java)
-        val warningLevel = PropertyContainer.warningProductLevel
+        val warningLevel = Product.warningLevel
 
         for (product in products) {
             try {

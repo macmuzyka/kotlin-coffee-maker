@@ -28,7 +28,7 @@ class OrderService(val orderRepository: OrderRepository, val coffeeService: Coff
         mode: DisplayMode
     ): Page<CoffeeOrder> {
         val pageable = PageRequest.of(page, rows)
-        val validatedMode = ParamValidator.validateDisplayMode(mode)
+        val validatedMode = ParamValidator.displayMode(mode)
 
         log.info(
             "Validated params -> " +

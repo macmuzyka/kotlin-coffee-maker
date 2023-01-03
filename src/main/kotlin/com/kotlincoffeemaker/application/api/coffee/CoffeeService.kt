@@ -5,7 +5,6 @@ import com.kotlincoffeemaker.application.model.enums.CoffeeDosage
 import com.kotlincoffeemaker.application.model.enums.DisplayMode
 import com.kotlincoffeemaker.application.model.enums.ExtraIngredient
 import com.kotlincoffeemaker.application.validation.ParamValidator
-import lombok.extern.slf4j.Slf4j
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -13,7 +12,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import kotlin.IllegalArgumentException
 
-@Slf4j
 @Service
 class CoffeeService(val coffeeRepository: CoffeeRepository) {
 
@@ -27,9 +25,9 @@ class CoffeeService(val coffeeRepository: CoffeeRepository) {
         clientName: String?,
         mode: DisplayMode
     ): Page<Coffee> {
-        val validDosage: List<String> = ParamValidator.validateDosage(dosage)
-        val properClientName = ParamValidator.validateName(clientName, creating = false)
-        val displayMode: String = ParamValidator.validateDisplayMode(mode)
+        val validDosage: List<String> = ParamValidator.dosage(dosage)
+        val properClientName = ParamValidator.name(clientName, creating = false)
+        val displayMode: String = ParamValidator.displayMode(mode)
         val pageable: Pageable = PageRequest.of(page, rows)
         log.info(
             "Validated params -> " +
@@ -54,7 +52,7 @@ class CoffeeService(val coffeeRepository: CoffeeRepository) {
     }
 
     fun orderCoffee(dosage: CoffeeDosage?, ingredients: List<ExtraIngredient>?, clientName: String?): Coffee {
-        val properClientName = ParamValidator.validateName(clientName, creating = true)
+        val properClientName = ParamValidator.name(clientName, creating = true)
         return coffeeRepository.save(Coffee(dosage, ingredients, properClientName))
     }
 
@@ -65,7 +63,7 @@ class CoffeeService(val coffeeRepository: CoffeeRepository) {
         clientName: String?
     ) {
         log.info("Coffee to update :: $toUpdate")
-        if (dosage != null) {
+        dosage?.let {
             if (dosage != toUpdate.dosage) {
                 log.info("Changing dosage from :: ${toUpdate.dosage} to $dosage")
                 toUpdate.dosage = dosage
@@ -73,26 +71,38 @@ class CoffeeService(val coffeeRepository: CoffeeRepository) {
                 log.info("Dosage stays the same!")
             }
         }
-
-        if (ingredients != null) {
+        ingredients?.let {
             val ingredientsToUpdate = toUpdate.ingredients
             log.info("Changing ingredients from :: {}", ingredientsToUpdate)
             log.info("to ingredients :: {}", ingredients)
             toUpdate.ingredients = ingredients
         }
+        clientName?.let {
+            if (clientName != toUpdate.clientName) {
+                log.info("Changing label from ${toUpdate.clientName} to $clientName")
+                toUpdate.clientName = clientName
+            } else {
+                log.info("Label stays the same!")
+            }
+        }
 
-        if (clientName != "Have a nice nice coffee :)") {
-            if (clientName == toUpdate.clientName) {
+       /* if (clientName != "Have a nice nice coffee :)" || clientName != toUpdate.clientName) {
+            if (clientName != toUpdate.clientName) {
                 log.info("Changing label from ${toUpdate.clientName} to $clientName")
                 toUpdate.clientName = clientName
             }
         } else {
             log.info("Label stays the same")
-        }
+        }*/
+
         log.info("Coffee updated :: $toUpdate")
     }
 
     fun updateCoffee(toUpdate: Coffee): Coffee {
         return coffeeRepository.save(toUpdate)
+    }
+
+    fun findAll(): List<Coffee> {
+        return coffeeRepository.findAll()
     }
 }
