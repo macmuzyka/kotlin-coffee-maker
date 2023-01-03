@@ -86,15 +86,6 @@ class CoffeeService(val coffeeRepository: CoffeeRepository) {
             }
         }
 
-       /* if (clientName != "Have a nice nice coffee :)" || clientName != toUpdate.clientName) {
-            if (clientName != toUpdate.clientName) {
-                log.info("Changing label from ${toUpdate.clientName} to $clientName")
-                toUpdate.clientName = clientName
-            }
-        } else {
-            log.info("Label stays the same")
-        }*/
-
         log.info("Coffee updated :: $toUpdate")
     }
 
