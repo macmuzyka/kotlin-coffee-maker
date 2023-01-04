@@ -42,16 +42,8 @@ class OrderService(val orderRepository: OrderRepository, val coffeeService: Coff
         return when {
             ready == false && delivered == true -> throw ExcludingConditionsException("Order cannot be delivered and NOT ready at the same time!")
             ready == null && delivered == null -> orderRepository.findAll(validatedMode, pageable)
-            ready == true && (delivered == null || delivered == false) -> orderRepository.findReadyButUndelivered(
-                validatedMode,
-                pageable
-            )
-
-            (ready == true || ready == null) && delivered == true -> orderRepository.findReadyAndDelivered(
-                validatedMode,
-                pageable
-            )
-
+            ready == true && (delivered == null || delivered == false) -> orderRepository.findReadyButUndelivered(validatedMode, pageable)
+            (ready == true || ready == null) && delivered == true -> orderRepository.findReadyAndDelivered(validatedMode, pageable)
             else -> orderRepository.findAll(pageable)
         }
     }
